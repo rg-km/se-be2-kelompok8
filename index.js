@@ -33,12 +33,20 @@ function initDirection() {
     return Math.floor(Math.random() * 4);
 }
 
-let snake1 = {
+let snake = {
     color: "purple",
     ...initHeadAndBody(),
     direction: initDirection(),
     score: 0,
+    lives: 3,
 }
+
+function newSnake(color) {
+    snake.color = color; 
+    return snake;
+}
+
+let snake1 = newSnake("red");
 
 let apples = [{
     color: "red",
@@ -49,7 +57,15 @@ let apples = [{
     position: initPosition(),
 }]
 
-let nyawa = {
+let lives = {
+    color: "red",
+    position: {
+        x: 0,
+        y: 0,
+    }
+}
+
+let heart = {
     color: "red",
     position: initPosition()
 }
@@ -58,6 +74,19 @@ let nyawa = {
 function drawCell(ctx, x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+}
+
+function drawLives(ctx, snake){
+    var imgLives = document.getElementById("lives");
+    for (let index = 0; index < snake.lives; index++) {
+        ctx.drawImage(imgLives, (lives.position.x + index) * CELL_SIZE, lives.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    }         
+}
+
+function drawHeart(ctx) {
+    let imgLivesFood = document.getElementById("lives")
+    ctx.drawImage(imgLivesFood, heart.position.x * CELL_SIZE, heart.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);            
+     
 }
 
 function drawScore(snake) {
@@ -73,33 +102,33 @@ function drawScore(snake) {
     scoreCtx.fillText(snake.score, 10, scoreCanvas.scrollHeight / 2);
 }
 
+function drawApples(ctx) {
+    for (let i = 0; i < apples.length; i++) {
+        let apple = apples[i];
+
+        var img = document.getElementById("apple");
+        ctx.drawImage(img, apple.position.x * CELL_SIZE, apple.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    }
+}
+
+function drawSnake(ctx, snake) {
+    drawCell(ctx, snake.head.x, snake.head.y, snake.color);
+    for (let i = 1; i < snake.body.length; i++) {
+        drawCell(ctx, snake.body[i].x, snake.body[i].y, snake.color);
+    }
+}
+
 function draw() {
     setInterval(function() {
         let snakeCanvas = document.getElementById("snakeBoard");
         let ctx = snakeCanvas.getContext("2d");        
-
         ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
         
-        drawCell(ctx, snake1.head.x, snake1.head.y, snake1.color);
-        for (let i = 1; i < snake1.body.length; i++) {
-            drawCell(ctx, snake1.body[i].x, snake1.body[i].y, snake1.color);
-        }
-
-        // let imgUlar1 = document.getElementById("ular1")
-        // ctx.drawImage(imgUlar1, snake1.position.x * CELL_SIZE, snake1.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-
-        for (let i = 0; i < apples.length; i++) {
-            let apple = apples[i];
-
-            // Soal no 3: DrawImage apple dan gunakan image id:
-            var img = document.getElementById("apple");
-            ctx.drawImage(img, apple.position.x * CELL_SIZE, apple.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        }
-        
-        if(snake1.score % 3 == 0){
-            let imgNyawa = document.getElementById("nyawa")
-            ctx.drawImage(imgNyawa, nyawa.position.x * CELL_SIZE, nyawa.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);            
-        }
+        drawLives(ctx, snake1);
+        drawSnake(ctx, snake1);
+        drawApples(ctx);
+        drawHeart(ctx);
         drawScore(snake1);
         
     }, REDRAW_INTERVAL);
@@ -120,18 +149,23 @@ function teleport(snake) {
     }
 }
 
-function eat(snake, apples) {
+function eat(snake) {
+    var audio = new Audio('assets/eat.mp3');
     for (let i = 0; i < apples.length; i++) {
         let apple = apples[i];
         if (snake.head.x == apple.position.x && snake.head.y == apple.position.y) {
             apple.position = initPosition();
-            snake.score++;
-            snake.body.push({x: snake.head.x, y: snake.head.y});
-        } else if (snake.head.x == nyawa.position.x && snake.head.y == nyawa.position.y) {
-            nyawa.position = initPosition();
+            audio.play();
             snake.score++;
             snake.body.push({x: snake.head.x, y: snake.head.y});
         }
+    }
+    if (snake.head.x == heart.position.x && snake.head.y == heart.position.y) {
+        heart.position = initPosition();
+        audio.play();
+        snake.score++;
+        snake.lives++;
+        snake.body.push({x: snake.head.x, y: snake.head.y}); 
     }
 }
 

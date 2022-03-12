@@ -149,19 +149,23 @@ function teleport(snake) {
     }
 }
 
-function eat(snake, apples) {
+function eat(snake) {
+    var audio = new Audio('assets/eat.mp3');
     for (let i = 0; i < apples.length; i++) {
         let apple = apples[i];
         if (snake.head.x == apple.position.x && snake.head.y == apple.position.y) {
             apple.position = initPosition();
+            audio.play();
             snake.score++;
-            snake.body.push({x: snake.head.x, y: snake.head.y});
-        } else if (snake.head.x == heart.position.x && snake.head.y == heart.position.y) {
-            heart.position = initPosition();
-            snake.score++;
-            snake.lives++;
             snake.body.push({x: snake.head.x, y: snake.head.y});
         }
+    }
+    if (snake.head.x == heart.position.x && snake.head.y == heart.position.y) {
+        heart.position = initPosition();
+        audio.play();
+        snake.score++;
+        snake.lives++;
+        snake.body.push({x: snake.head.x, y: snake.head.y}); 
     }
 }
 

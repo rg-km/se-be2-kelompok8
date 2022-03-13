@@ -22,7 +22,7 @@ function initPosition() {
 
 function initHeadAndBody() {
     let head = initPosition();
-    let body = [{x: head.x, y: head.y}];
+    let body = [{ x: head.x, y: head.y }];
     return {
         head: head,
         body: body,
@@ -33,29 +33,28 @@ function initDirection() {
     return Math.floor(Math.random() * 4);
 }
 
-let snake = {
-    color: "purple",
-    ...initHeadAndBody(),
-    direction: initDirection(),
-    score: 0,
-    lives: 3,
-}
-
 function newSnake(color) {
-    snake.color = color; 
-    return snake;
+    return {
+        color: "purple",
+        ...initHeadAndBody(),
+        direction: initDirection(),
+        score: 0,
+        lives: 3,
+    }
 }
 
 let snake1 = newSnake("red");
 
-let apples = [{
-    color: "red",
-    position: initPosition(),
-},
-{
-    color: "green",
-    position: initPosition(),
-}]
+let apples = [
+    {
+        color: "red",
+        position: initPosition(),
+    },
+    {
+        color: "green",
+        position: initPosition(),
+    }
+]
 
 let lives = {
     color: "red",
@@ -65,35 +64,55 @@ let lives = {
     }
 }
 
-let heart = {
-    color: "red",
-    position: initPosition()
+let hearts = []
+
+function addHeart(snake) {
+    if(isPrime(snake.score)){
+        let heart = {
+            color: "red",
+            position: initPosition()
+        }
+        hearts.push(heart);
+    }
 }
 
+function drawHearts(ctx) {
+    for(i = 0; i < hearts.length; i++){
+        let heart = hearts[i];
+        let imgLivesFood = document.getElementById("lives")
+        ctx.drawImage(imgLivesFood, heart.position.x * CELL_SIZE, heart.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    }
+}
+
+function isPrime(num) {
+    if (num < 2) {
+        return false;
+    }
+    for (var i = 2; i < num; i++) {
+        if (num % i === 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
 function drawCell(ctx, x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 }
 
-function drawLives(ctx, snake){
+function drawLives(ctx, snake) {
     var imgLives = document.getElementById("lives");
     for (let index = 0; index < snake.lives; index++) {
         ctx.drawImage(imgLives, (lives.position.x + index) * CELL_SIZE, lives.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    }         
-}
-
-function drawHeart(ctx) {
-    let imgLivesFood = document.getElementById("lives")
-    ctx.drawImage(imgLivesFood, heart.position.x * CELL_SIZE, heart.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);            
-     
+    }
 }
 
 function drawScore(snake) {
     let scoreCanvas;
     if (snake.color == snake1.color) {
         scoreCanvas = document.getElementById("score1Board");
-    } 
+    }
     let scoreCtx = scoreCanvas.getContext("2d");
 
     scoreCtx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
@@ -119,18 +138,17 @@ function drawSnake(ctx, snake) {
 }
 
 function draw() {
-    setInterval(function() {
+    setInterval(function () {
         let snakeCanvas = document.getElementById("snakeBoard");
-        let ctx = snakeCanvas.getContext("2d");        
+        let ctx = snakeCanvas.getContext("2d");
         ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
-        
         drawLives(ctx, snake1);
         drawSnake(ctx, snake1);
         drawApples(ctx);
-        drawHeart(ctx);
+        drawHearts(ctx);
         drawScore(snake1);
-        
+
     }, REDRAW_INTERVAL);
 }
 
@@ -157,16 +175,22 @@ function eat(snake) {
             apple.position = initPosition();
             audio.play();
             snake.score++;
-            snake.body.push({x: snake.head.x, y: snake.head.y});
+            snake.body.push({ x: snake.head.x, y: snake.head.y });
+            addHeart(snake);
         }
     }
-    if (snake.head.x == heart.position.x && snake.head.y == heart.position.y) {
-        heart.position = initPosition();
-        audio.play();
-        snake.score++;
-        snake.lives++;
-        snake.body.push({x: snake.head.x, y: snake.head.y}); 
+    for (let i = 0; i < hearts.length; i++){
+        let heart = hearts[i];
+        if (snake.head.x == heart.position.x && snake.head.y == heart.position.y) {
+            audio.play();
+            snake.score++;
+            snake.lives++;
+            snake.body.push({ x: snake.head.x, y: snake.head.y });
+            hearts.splice(i, 1);
+            addHeart(snake);
+        }
     }
+    
 }
 
 function moveLeft(snake) {
@@ -209,7 +233,7 @@ function move(snake) {
             break;
     }
     moveBody(snake);
-    setTimeout(function() {
+    setTimeout(function () {
         move(snake);
     }, MOVE_INTERVAL);
 }

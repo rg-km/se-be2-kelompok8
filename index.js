@@ -1,7 +1,7 @@
 const CELL_SIZE = 20;
 const CANVAS_SIZE = 600;
 //made faster
-const REDRAW_INTERVAL = 50;
+const REDRAW_INTERVAL = 30;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
 const HEIGHT = CANVAS_SIZE / CELL_SIZE;
 //this
@@ -31,6 +31,16 @@ function initHeadAndBody() {
 
 function initDirection() {
     return Math.floor(Math.random() * 4);
+}
+
+function initSnake(color) {
+    return {
+        color: color,
+        ...initHeadAndBody(),
+        direction: initDirection(),
+        score:snake.score,
+        lives:snake.lives-1,
+    }
 }
 
 let snake = {
@@ -209,9 +219,13 @@ function move(snake) {
             break;
     }
     moveBody(snake);
-    setTimeout(function() {
-        move(snake);
-    }, MOVE_INTERVAL);
+    if (!checkCollision([snake1])) {
+        setTimeout(function() {
+            move(snake);
+        }, MOVE_INTERVAL);
+    } else {
+        initGame();
+    }
 }
 function moveBody(snake) {
     snake.body.unshift({ x: snake.head.x, y: snake.head.y });
@@ -222,8 +236,12 @@ function checkCollision(snakes) {
     let isCollide = false;
     //this
     for (let i = 0; i < snakes.length; i++) {
-        if (snakes[i].head.x == snakes[i].body[i].x && snakes[i].head.y == snakes[i].body[i].y) {
-            isCollide = true;
+        for (let j = 0; j < snakes.length; j++) {
+            for (let k = 1; k < snakes[j].body.length; k++) {
+                if (snakes[i].head.x == snakes[j].body[k].x && snakes[i].head.y == snakes[j].body[k].y) {
+                    isCollide = true;
+                }
+            }
         }
     }
     if (isCollide) {
@@ -232,6 +250,8 @@ function checkCollision(snakes) {
         audio.play();
 
         alert("Game over");
+        snake1 = initSnake("red");
+        
     }
     return isCollide;
 }
@@ -248,4 +268,9 @@ document.addEventListener("keydown", function (event) {
     }
 })
 
-move(snake1);
+// move(snake1);
+function initGame() {
+    move(snake1);
+}
+
+initGame();

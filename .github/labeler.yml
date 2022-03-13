@@ -1,8 +1,9 @@
 website:
 - "site/**"
-ci:
+repo:
+- "*"
+github:
 - ".github/**"
-frontend:
-- "frontend/**"
-backend:
-- "backend/**"
+assets:
+- "assets/**"
+

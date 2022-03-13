@@ -4,6 +4,7 @@ const CANVAS_SIZE = 600;
 const REDRAW_INTERVAL = 30;
 const WIDTH = CANVAS_SIZE / CELL_SIZE;
 const HEIGHT = CANVAS_SIZE / CELL_SIZE;
+
 //this
 const DIRECTION = {
     LEFT: 0,
@@ -22,7 +23,12 @@ function initPosition() {
 
 function initHeadAndBody() {
     let head = initPosition();
-    let body = [{x: head.x, y: head.y}];
+    let body = [];
+
+    for(var i=0; i<3; i++) {
+    body.push({x: head.x+i, y: head.y+i});
+    
+    }
     return {
         head: head,
         body: body,
@@ -44,7 +50,7 @@ function initSnake(color) {
 }
 
 let snake = {
-    color: "purple",
+    color: "red",
     ...initHeadAndBody(),
     direction: initDirection(),
     score: 0,
@@ -56,7 +62,7 @@ function newSnake(color) {
     return snake;
 }
 
-let snake1 = newSnake("red");
+let snake1 = newSnake("green");
 
 let apples = [{
     color: "red",
@@ -84,7 +90,31 @@ let heart = {
 function drawCell(ctx, x, y, color) {
     ctx.fillStyle = color;
     ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    
+    console.log(x, y);
 }
+
+
+function downHead(ctx, x,y) {
+    var imgHead = document.getElementById("head");
+    ctx.drawImage(imgHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
+function rightHead(ctx,x,y){
+    var rHead = document.getElementById("rightHead");
+    ctx.drawImage(rHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
+function leftHead(ctx,x,y){
+    var lHead = document.getElementById("leftHead");
+    ctx.drawImage(lHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
+function upHead(ctx,x,y){
+    var uHead = document.getElementById("upHead");
+    ctx.drawImage(uHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
 
 function drawLives(ctx, snake){
     var imgLives = document.getElementById("lives");
@@ -122,9 +152,25 @@ function drawApples(ctx) {
 }
 
 function drawSnake(ctx, snake) {
-    drawCell(ctx, snake.head.x, snake.head.y, snake.color);
+    // drawHead(ctx, snake.head.x, snake.head.y);
+    // drawCell(ctx, snake.head.x, snake.head.y, snake.color);
+    if(snake.direction == DIRECTION.DOWN) {
+        downHead(ctx, snake.head.x, snake.head.y);
+    }
+    else if(snake.direction == DIRECTION.RIGHT) {
+        rightHead(ctx, snake.head.x, snake.head.y);
+    }
+    else if(snake.direction == DIRECTION.UP) {
+        upHead(ctx, snake.head.x, snake.head.y);
+    }
+    else if(snake.direction == DIRECTION.LEFT) {
+        leftHead(ctx, snake.head.x, snake.head.y);
+    }
+
     for (let i = 1; i < snake.body.length; i++) {
+        // drawHead(ctx, snake.body[i].x, snake.body[i].y);
         drawCell(ctx, snake.body[i].x, snake.body[i].y, snake.color);
+
     }
 }
 
@@ -134,7 +180,6 @@ function draw() {
         let ctx = snakeCanvas.getContext("2d");        
         ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
-        
         drawLives(ctx, snake1);
         drawSnake(ctx, snake1);
         drawApples(ctx);
@@ -183,6 +228,7 @@ function moveLeft(snake) {
     snake.head.x--;
     teleport(snake);
     eat(snake, apples);
+    
 }
 
 function moveRight(snake) {
@@ -258,13 +304,19 @@ function checkCollision(snakes) {
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "ArrowLeft") {
-        snake1.direction = DIRECTION.LEFT;
+        if (snake1.direction != DIRECTION.RIGHT) {
+            snake1.direction = DIRECTION.LEFT;
+        }
+        // snake1.direction = DIRECTION.LEF;
     } else if (event.key === "ArrowRight") {
-        snake1.direction = DIRECTION.RIGHT;
+        if (snake1.direction != DIRECTION.LEFT) {
+        snake1.direction = DIRECTION.RIGHT;}
     } else if (event.key === "ArrowUp") {
-        snake1.direction = DIRECTION.UP;
+        if (snake1.direction != DIRECTION.DOWN) {
+        snake1.direction = DIRECTION.UP;}
     } else if (event.key === "ArrowDown") {
-        snake1.direction = DIRECTION.DOWN;
+        if (snake1.direction != DIRECTION.UP) {
+        snake1.direction = DIRECTION.DOWN;}
     }
 })
 

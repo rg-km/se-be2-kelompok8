@@ -43,7 +43,7 @@ function newSnake(color) {
     }
 }
 
-let snake1 = newSnake("red");
+let snake1 = newSnake("purple");
 
 let apples = [
     {
@@ -67,7 +67,7 @@ let lives = {
 let hearts = []
 
 function addHeart(snake) {
-    if(isPrime(snake.score)){
+    if (isPrime(snake.score)) {
         let heart = {
             color: "red",
             position: initPosition()
@@ -77,7 +77,7 @@ function addHeart(snake) {
 }
 
 function drawHearts(ctx) {
-    for(i = 0; i < hearts.length; i++){
+    for (i = 0; i < hearts.length; i++) {
         let heart = hearts[i];
         let imgLivesFood = document.getElementById("lives")
         ctx.drawImage(imgLivesFood, heart.position.x * CELL_SIZE, heart.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
@@ -179,7 +179,7 @@ function eat(snake) {
             addHeart(snake);
         }
     }
-    for (let i = 0; i < hearts.length; i++){
+    for (let i = 0; i < hearts.length; i++) {
         let heart = hearts[i];
         if (snake.head.x == heart.position.x && snake.head.y == heart.position.y) {
             audio.play();
@@ -190,7 +190,7 @@ function eat(snake) {
             addHeart(snake);
         }
     }
-    
+
 }
 
 function moveLeft(snake) {
@@ -233,32 +233,45 @@ function move(snake) {
             break;
     }
     moveBody(snake);
-    setTimeout(function () {
-        move(snake);
-    }, MOVE_INTERVAL);
+
+    if (!checkCollision(snake1)) {
+        setTimeout(function () {
+            move(snake);
+        }, MOVE_INTERVAL);
+    } else {
+        initGame();
+    }
 }
 function moveBody(snake) {
     snake.body.unshift({ x: snake.head.x, y: snake.head.y });
     snake.body.pop();
 }
 
-function checkCollision(snakes) {
+function checkCollision(snake) {
     let isCollide = false;
     //this
-    for (let i = 0; i < snakes.length; i++) {
-        if (snakes[i].head.x == snakes[i].body[i].x && snakes[i].head.y == snakes[i].body[i].y) {
-            isCollide = true;
+    for (let i = 1; i < snake.body.length; i++) {
+        if (snake.head.x == snake.body[i].x && snake.head.y == snake.body[i].y) {
+            snake.lives--;
+            snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            if(snake.lives==0){
+                isCollide = true;
+            }
         }
     }
+
     if (isCollide) {
         // Soal no 5: Add game over audio:
-        var audio = new Audio('game-over.mp3');
+        var audio = new Audio('assets/game-over.mp3');
         audio.play();
-
         alert("Game over");
+        hearts = []
+        snake1 = newSnake("purple");
     }
+
     return isCollide;
 }
+
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "ArrowLeft") {
@@ -272,4 +285,8 @@ document.addEventListener("keydown", function (event) {
     }
 })
 
-move(snake1);
+function initGame() {
+    move(snake1);
+}
+
+initGame();

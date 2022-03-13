@@ -122,6 +122,37 @@ function drawScore(snake) {
     scoreCtx.fillText(snake.score, 10, scoreCanvas.scrollHeight / 2);
 }
 
+let walls = [];
+
+function drawWalls(ctx) {
+    var imgWall = document.getElementById("wall");
+    for (let index = 0; index < walls.length; index++) {
+        let wall = walls[index];
+        for (let x = wall.position.x1; x <= wall.position.x2; x++) {
+            ctx.drawImage(imgWall, x * CELL_SIZE, wall.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        }
+    }
+}
+
+function addWall() {
+    let x1 = Math.floor((Math.random() * (CELL_SIZE * 0.8)) + (CELL_SIZE * 0.2));
+    let x2 = Math.floor((Math.random() * (CELL_SIZE * 0.8)) + (CELL_SIZE * 0.2));
+    while (x1 >= x2) {
+        x1 = Math.floor((Math.random() * (CELL_SIZE * 0.8)) + (CELL_SIZE * 0.2));
+        x2 = Math.floor((Math.random() * (CELL_SIZE * 0.8)) + (CELL_SIZE * 0.2));
+    }
+    let y = Math.floor((Math.random() * (CELL_SIZE * 0.8)) + (CELL_SIZE * 0.2));
+    // check if level up
+    let wall = {
+        position: {
+        x1: x1,
+        x2: x2,
+        y: y
+    }
+    };
+    walls.push(wall);
+}
+
 function drawApples(ctx) {
     for (let i = 0; i < apples.length; i++) {
         let apple = apples[i];
@@ -149,6 +180,7 @@ function draw() {
         drawApples(ctx);
         drawHearts(ctx);
         drawScore(snake1);
+        drawWalls(ctx);
 
     }, REDRAW_INTERVAL);
 }
@@ -169,11 +201,12 @@ function teleport(snake) {
 }
 
 function newLevel(snake) {
-    if(snake.score%5 ==0){
-        alert("Level " +snake.level+ " Complete!")
-        snake.level++
+    if (snake.score % 5 == 0) {
+        alert("Level " + snake.level + " Complete!");
+        snake.level++;
         MOVE_INTERVAL -= 20;
-        document.getElementById("level").innerHTML = "Level: " +snake.level+  " <br>Speed:" +MOVE_INTERVAL+ " ms";
+        document.getElementById("level").innerHTML = "Level: " + snake.level + " <br>Speed:" + MOVE_INTERVAL + " ms";
+        addWall();
     }
 }
 
@@ -266,7 +299,20 @@ function checkCollision(snake) {
         if (snake.head.x == snake.body[i].x && snake.head.y == snake.body[i].y) {
             snake.lives--;
             snake.body = [{ x: snake.head.x, y: snake.head.y }]
-            if(snake.lives==0){
+            if (snake.lives == 0) {
+                isCollide = true;
+            }
+        }
+    }
+
+    for (let i = 0; i < walls.length; i++) {
+       let wall = walls[i];
+        // check if head is in beetween wall
+        if ((snake.head.x >= wall.position.x1 && snake.head.x <= wall.position.x2 ) && snake.head.y == wall.position.y) {
+            snake.lives--;
+            snake.direction = initDirection();
+            snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            if (snake.lives == 0) {
                 isCollide = true;
             }
         }
@@ -278,7 +324,10 @@ function checkCollision(snake) {
         audio.play();
         alert("Game over");
         hearts = []
+        walls = []
         snake1 = newSnake("purple");
+        MOVE_INTERVAL = 120;
+        document.getElementById("level").innerHTML = "Level: " + snake1.level + " <br>Speed:" + MOVE_INTERVAL + " ms";
     }
 
     return isCollide;

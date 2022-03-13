@@ -1,9 +1,0 @@
-website:
-- "site/**"
-repo:
-- "*"
-github:
-- ".github/**"
-assets:
-- "assets/**"
-

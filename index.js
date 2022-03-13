@@ -11,7 +11,7 @@ const DIRECTION = {
     UP: 2,
     DOWN: 3,
 }
-const MOVE_INTERVAL = 200;
+let MOVE_INTERVAL = 120;
 
 function initPosition() {
     return {
@@ -40,6 +40,7 @@ function newSnake(color) {
         direction: initDirection(),
         score: 0,
         lives: 3,
+        level: 1,
     }
 }
 
@@ -167,6 +168,15 @@ function teleport(snake) {
     }
 }
 
+function newLevel(snake) {
+    if(snake.score%5 ==0){
+        alert("Level " +snake.level+ " Complete!")
+        snake.level++
+        MOVE_INTERVAL -= 20;
+        document.getElementById("level").innerHTML = "Level: " +snake.level+  " <br>Speed:" +MOVE_INTERVAL+ " ms";
+    }
+}
+
 function eat(snake) {
     var audio = new Audio('assets/eat.mp3');
     for (let i = 0; i < apples.length; i++) {
@@ -177,6 +187,7 @@ function eat(snake) {
             snake.score++;
             snake.body.push({ x: snake.head.x, y: snake.head.y });
             addHeart(snake);
+            newLevel(snake);
         }
     }
     for (let i = 0; i < hearts.length; i++) {
@@ -188,6 +199,7 @@ function eat(snake) {
             snake.body.push({ x: snake.head.x, y: snake.head.y });
             hearts.splice(i, 1);
             addHeart(snake);
+            newLevel(snake);
         }
     }
 
@@ -271,7 +283,6 @@ function checkCollision(snake) {
 
     return isCollide;
 }
-
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "ArrowLeft") {

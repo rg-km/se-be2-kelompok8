@@ -24,9 +24,9 @@ function initHeadAndBody() {
     let head = initPosition();
     let body = [{ x: head.x, y: head.y }];
 
-     for(var i=0; i<2; i++) {
-     body.push({x: head.x+i, y: head.y+i});
-     }
+    //  for(var i=0; i<2; i++) {
+    //  body.push({x: head.x+i, y: head.y+i});
+    //  }
 
     return {
         head: head,
@@ -336,8 +336,8 @@ function checkCollision(snake) {
     for (let i = 1; i < snake.body.length; i++) {
         if (snake.head.x == snake.body[i].x && snake.head.y == snake.body[i].y) {
             snake.lives--;
-            // snake.body = [{ x: snake.head.x, y: snake.head.y }]
-            initHeadAndBody();
+            snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            //initHeadAndBody();
             if (snake.lives == 0) {
                 isCollide = true;
             }
@@ -349,9 +349,9 @@ function checkCollision(snake) {
         // check if head is in beetween wall
         if ((snake.head.x >= wall.position.x1 && snake.head.x <= wall.position.x2 ) && snake.head.y == wall.position.y) {
             snake.lives--;
+            snake.body = [{ x: snake.head.x, y: snake.head.y }]
             snake.direction = initDirection();
-            // snake.body = [{ x: snake.head.x, y: snake.head.y }]
-            initHeadAndBody();
+            //initHeadAndBody();
             if (snake.lives == 0) {
                 isCollide = true;
             }

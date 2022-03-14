@@ -23,6 +23,11 @@ function initPosition() {
 function initHeadAndBody() {
     let head = initPosition();
     let body = [{ x: head.x, y: head.y }];
+
+     for(var i=0; i<2; i++) {
+     body.push({x: head.x+i, y: head.y+i});
+     }
+
     return {
         head: head,
         body: body,
@@ -35,7 +40,7 @@ function initDirection() {
 
 function newSnake(color) {
     return {
-        color: "purple",
+        color: "green",
         ...initHeadAndBody(),
         direction: initDirection(),
         score: 0,
@@ -44,7 +49,7 @@ function newSnake(color) {
     }
 }
 
-let snake1 = newSnake("purple");
+let snake1 = newSnake("green");
 
 let apples = [
     {
@@ -66,6 +71,27 @@ let lives = {
 }
 
 let hearts = []
+
+function downHead(ctx, x,y) {
+    var imgHead = document.getElementById("head");
+    ctx.drawImage(imgHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
+function rightHead(ctx,x,y){
+    var rHead = document.getElementById("rightHead");
+    ctx.drawImage(rHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
+function leftHead(ctx,x,y){
+    var lHead = document.getElementById("leftHead");
+    ctx.drawImage(lHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
+function upHead(ctx,x,y){
+    var uHead = document.getElementById("upHead");
+    ctx.drawImage(uHead , x * CELL_SIZE - 15, y * CELL_SIZE - 15, CELL_SIZE+30, CELL_SIZE+30);
+}
+
 
 function addHeart(snake) {
     if (isPrime(snake.score)) {
@@ -163,7 +189,19 @@ function drawApples(ctx) {
 }
 
 function drawSnake(ctx, snake) {
-    drawCell(ctx, snake.head.x, snake.head.y, snake.color);
+    if(snake.direction == DIRECTION.DOWN) {
+        downHead(ctx, snake.head.x, snake.head.y);
+    }
+    else if(snake.direction == DIRECTION.RIGHT) {
+        rightHead(ctx, snake.head.x, snake.head.y);
+    }
+    else if(snake.direction == DIRECTION.UP) {
+        upHead(ctx, snake.head.x, snake.head.y);
+    }
+    else if(snake.direction == DIRECTION.LEFT) {
+        leftHead(ctx, snake.head.x, snake.head.y);
+    }
+
     for (let i = 1; i < snake.body.length; i++) {
         drawCell(ctx, snake.body[i].x, snake.body[i].y, snake.color);
     }
@@ -298,7 +336,8 @@ function checkCollision(snake) {
     for (let i = 1; i < snake.body.length; i++) {
         if (snake.head.x == snake.body[i].x && snake.head.y == snake.body[i].y) {
             snake.lives--;
-            snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            // snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            initHeadAndBody();
             if (snake.lives == 0) {
                 isCollide = true;
             }
@@ -311,7 +350,8 @@ function checkCollision(snake) {
         if ((snake.head.x >= wall.position.x1 && snake.head.x <= wall.position.x2 ) && snake.head.y == wall.position.y) {
             snake.lives--;
             snake.direction = initDirection();
-            snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            // snake.body = [{ x: snake.head.x, y: snake.head.y }]
+            initHeadAndBody();
             if (snake.lives == 0) {
                 isCollide = true;
             }
@@ -325,7 +365,7 @@ function checkCollision(snake) {
         alert("Game over");
         hearts = []
         walls = []
-        snake1 = newSnake("purple");
+        snake1 = newSnake("green");
         MOVE_INTERVAL = 120;
         document.getElementById("level").innerHTML = "Level: " + snake1.level + " <br>Speed:" + MOVE_INTERVAL + " ms";
     }
@@ -335,13 +375,18 @@ function checkCollision(snake) {
 
 document.addEventListener("keydown", function (event) {
     if (event.key === "ArrowLeft") {
-        snake1.direction = DIRECTION.LEFT;
+        if (snake1.direction != DIRECTION.RIGHT) {
+            snake1.direction = DIRECTION.LEFT;
+        }
     } else if (event.key === "ArrowRight") {
-        snake1.direction = DIRECTION.RIGHT;
+        if (snake1.direction != DIRECTION.LEFT) {
+        snake1.direction = DIRECTION.RIGHT;}
     } else if (event.key === "ArrowUp") {
-        snake1.direction = DIRECTION.UP;
+        if (snake1.direction != DIRECTION.DOWN) {
+        snake1.direction = DIRECTION.UP;}
     } else if (event.key === "ArrowDown") {
-        snake1.direction = DIRECTION.DOWN;
+        if (snake1.direction != DIRECTION.UP) {
+        snake1.direction = DIRECTION.DOWN;}
     }
 })
 
